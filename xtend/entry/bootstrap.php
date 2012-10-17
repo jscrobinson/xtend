@@ -29,10 +29,7 @@ class bootstrap {
 		});
 		
 		try{
-
 			$site_configuration = \xtend\core\classes\jsonConfig::innit(CONFIG_PATH . '/main.json', 'core');
-	
-	
 		} catch (Exception $e) {
 	
 			//Implement a error template class later on.
@@ -40,18 +37,13 @@ class bootstrap {
 	
 		}
 		
-		global $routes;
+		\xtend\core\classes\registry::add("config",$site_configuration);
 		
-		$dom = new \DOMDocument();
-		$dom->load(APP_PATH . '/routes.xml');
+		$site_configuration->set("site.baseurl","localhost");
 		
-		$routes = $dom->getElementsByTagName("route");
 		
-		foreach($routes as $route) {
-			
-			echo $route->getAttribute('pattern');
-			
-		}
+		
+		
 		
 	}
 	
