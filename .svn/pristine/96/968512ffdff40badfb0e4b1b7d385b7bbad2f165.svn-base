@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<routes>
+	<route id="index" pattern="/">
+		<controller file="jadu/index.php" class="jadu" method="index"></controller>
+	</route>
+	
+	<route id="view" pattern="/view">
+		<controller file="jadu/index.php" class="jadu" method="index"></controller>
+	</route>
+	
+	<route id="delete" pattern="/delete">
+		<controller file="jadu/index.php" class="jadu" method="index"></controller>
+	</route>
+</routes>

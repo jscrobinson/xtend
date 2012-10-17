@@ -1,0 +1,66 @@
+<?php
+
+namespace xtend\entry;
+
+class bootstrap {
+	
+	public static function main() {
+		
+		//Define App path
+		define('APP_PATH', ROOT .'/app');
+		
+		//Set debug path and configuration folder.
+		$debug_level = (defined('ENVIRONMENT')? ENVIRONMENT : 'production');
+		define("PATH_CONFIGURATION", ROOT . '/xtend/config/' . $debug_level);
+		
+		/* Set Autoload to load Namespaces like directory **/
+		spl_autoload_register(function ($classname) { 
+		
+			$class_parts = explode('\\', $classname);
+			$classname = implode('/', $class_parts);
+			
+			//echo 
+			$class_path = ROOT . '/' . $classname . '.php';
+			//echo "<br/>";
+			
+			if(is_file($class_path)) {
+			
+				require($class_path);	
+				
+			}
+			
+			
+		});
+		
+		global $site_configuration;
+		
+		try{
+
+			$site_configuration = \xtend\core\classes\jsonConfig::innit(PATH_CONFIGURATION . '/main.json', 'core');
+	
+	
+		} catch (Exception $e) {
+	
+			//Implement a error template class later on.
+			echo $e->getMessage();
+	
+		}
+		
+		global $routes;
+		
+		$dom = new \DOMDocument();
+		$dom->load(APP_PATH . '/routes.xml');
+		
+		$routes = $dom->getElementsByTagName("route");
+		
+		foreach($routes as $route) {
+			
+			echo $route->getAttribute('pattern');
+			
+		}
+		
+	}
+	
+}
+
+?>

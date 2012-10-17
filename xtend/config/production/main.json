@@ -1,0 +1,10 @@
+{
+  "site":{
+    "baseurl":"localhost"
+  },
+  "database":{
+  	  "name": "jadu",
+	  "username":"root",
+	  "password":"password"
+  }
+}
