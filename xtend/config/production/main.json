@@ -3,7 +3,7 @@
     "baseurl":"localhost"
   },
   "database":{
-    "name":"jadu",
+    "name":"xtend",
     "username":"root",
     "password":"password"
   }

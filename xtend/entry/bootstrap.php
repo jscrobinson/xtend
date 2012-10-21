@@ -29,15 +29,13 @@ class bootstrap {
 		});
 		
 		try{
-			$site_configuration = \xtend\core\classes\jsonConfig::innit(CONFIG_PATH . '/main.json', 'core');
+			$site_configuration = \xtend\core\classes\jsonConfig::innit(new \xtend\core\classes\file(CONFIG_PATH . "/main.json"), 'core');
 		} catch (Exception $e) {
 	
 			//Implement a error template class later on.
 			echo $e->getMessage();
 	
 		}
-		
-		\xtend\core\classes\registry::add("config",$site_configuration);
 		
 		$site_configuration->set("site.baseurl","localhost");
 		

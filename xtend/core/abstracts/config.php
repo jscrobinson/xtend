@@ -8,23 +8,21 @@ abstract class config implements core\interfaces\config {
 
 	protected static $global_namespace = array();
 	protected $options = array();
-	protected $resources = array();
+	protected $file = null;
 	private $current_scope;
 	
-	final protected function __construct(array $options, $name, $resources = NULL) {
+	final protected function __construct(array $options, $namespace, \xtend\core\classes\file $file) {
 	
-		if($name == "" || $name == NULL)
+		if($namespace == "" || $namespace == NULL)
 			throw new exceptions\invalidParameterException("The namespace parameter must be set");
 		
-		if(isset(self::$global_namespace[$name]))
+		if(isset(self::$global_namespace[$namespace]))
 			throw new \Exception("The configuration namespace already exists");
 			
-		if($resources !== null)
-			$this->resources = $resources;
-			
 		$this->options = new core\classes\stringArrayNotation($options);
-		self::$global_namespace[$name] = $this;
-		$this->current_scope = $name;		
+		self::$global_namespace[$namespace] = $this;
+		$this->current_scope = $namespace;
+		$this->file = $file;
 	}
 	
 	final static function getNameSpaces() {
