@@ -37,10 +37,7 @@ class bootstrap {
 	
 		}
 		
-		$site_configuration->set("site.baseurl","localhost");
-		
-		
-		
+		\xtend\core\classes\router::router(APP_PATH . '/routes.xml');
 		
 		
 	}

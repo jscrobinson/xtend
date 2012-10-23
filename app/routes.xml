@@ -1,15 +1,12 @@
 <?xml version="1.0"?>
-
-<routes>
-	<route id="index" pattern="/">
-		<controller file="jadu/index.php" class="jadu" method="index"></controller>
+<route id="index" pattern="/" controller="app/index" method="">
+	
+	<route id="admin" pattern="admin/" controller="app/admin" method="index">
+			
+		<route id="admin-login" pattern="login/" method="login"></route>
+		
+		<route id="admin-logout" pattern="logout/" method="logout"></route>	
+		
 	</route>
 	
-	<route id="view" pattern="/view">
-		<controller file="jadu/index.php" class="jadu" method="index"></controller>
-	</route>
-	
-	<route id="delete" pattern="/delete">
-		<controller file="jadu/index.php" class="jadu" method="index"></controller>
-	</route>
-</routes>
+</route>
