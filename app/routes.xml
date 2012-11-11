@@ -1,12 +1,32 @@
 <?xml version="1.0"?>
-<route id="index" pattern="/" controller="app/index" method="">
+<route id="index" pattern="" controller="app/index" method="test">
 	
-	<route id="admin" pattern="admin/" controller="app/admin" method="index">
-			
-		<route id="admin-login" pattern="login/" method="login"></route>
+	<route id="admin" pattern="admin/{lang1}/{lang2}/" controller="app/admin" method="index">
+	
+		<match name="lang1">en</match>
 		
-		<route id="admin-logout" pattern="logout/" method="logout"></route>	
+		<match name="lang2">de</match>
+			
+		<route id="admin-login" pattern="{action}/">
+			
+			<match name="action">action</match>
+			
+		</route>
+		
+		<match name="lang">en|es</match>
+				
+		<route id="admin-login1" pattern="logout/" method="logout">
+			
+			<route id="admin-login2" pattern="test" />
+			
+			<match name="lang">pattern2</match>	
+			
+		</route>	
+		
+		<route id="admin-login3" pattern="login/last" />
 		
 	</route>
 	
+	<route id="trumps" pattern="user/{lang}/" controller="app/admin" method="index" />
+		
 </route>

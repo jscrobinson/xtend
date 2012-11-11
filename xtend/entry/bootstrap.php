@@ -37,8 +37,8 @@ class bootstrap {
 	
 		}
 		
-		\xtend\core\classes\router::router(APP_PATH . '/routes.xml');
-		
+		$router = \xtend\core\classes\router::router(APP_PATH . '/routes.xml');
+		echo var_dump($router->route('/admin/en/de/action/'));
 		
 	}
 	
