@@ -18,9 +18,9 @@ class router {
 	private function __construct($file) {
 		$this->routes = simplexml_load_file($file);
 		$this->buildRoutes($this->routes);
-		echo var_dump($this->compiled_routes['admin-login']);
+		echo var_dump($this->compiled_routes);
 		//echo var_dump($this->route_errors);
-		echo var_dump($this->matches);
+		//echo var_dump($this->matches);
 	}
 	
 	public static function router($file = null) {
@@ -31,6 +31,10 @@ class router {
 	}
 	
 	private function buildRoutes($route) {
+	
+		//Determines whether the slash needs to be readded at the end.
+		$slash_toggle = false;
+	
 		if($route->getName() == "route") {
 			
 			//Route validation
@@ -45,12 +49,21 @@ class router {
 				
 			if(empty($route['method']) && empty($this->parent_method))
 				return $this->failRoute("The METHOD attribute is missing",$route);
-			
-			if(preg_match('{^/.+}', $route['pattern']))
-				return $this->failRoute("The PATTERN attribute must not start with a / ", $route);
-			
-			if(!empty($route['pattern']))
-				$this->current_pattern[] =  (string) $route['pattern'];
+						
+			if(!empty($route['pattern'])){
+				
+				if(preg_match('{^/.+}', $route['pattern']))
+					return $this->failRoute("The PATTERN attribute must not start with a / ", $route);
+
+				if(!preg_match("%/$%",$route['pattern'])) {
+					$slash_toggle = true;
+					$route['pattern'] = $route['pattern'] . '/';
+				}
+				
+				$this->current_pattern[] = (string) $route['pattern'];
+
+			}
+				
 			
 			if(isset($route['method']))
 				$this->parent_method =  (string) $route['method'];
@@ -65,11 +78,16 @@ class router {
 											 			 		  "matches" => $this->matches,
 											 			 		  "regex" => implode(null,$this->current_pattern));
 			
-			//Tag section - works out taks from the pattern to determine how many matches there should be
+			//Now remove the slash again if needs be								 			 		  
+			if($slash_toggle == true) {
+				$this->compiled_routes[(string)$route['id']]['pattern'] = rtrim($this->compiled_routes[(string)$route['id']]['pattern'],'/');
+			}
+			
+			//Tag section - works out tags from the pattern to determine how many matches there should be
 			$current_tags = $this->tags;
 			$tag_count = count($current_tags);
 			$temp_tags = array();
-			preg_match_all('@\{{1}([^{}]+)\}{1}@', (string) $route['pattern'], $tags);
+			preg_match_all('%\{{1}([^{}]+)\}{1}%', (string) $route['pattern'], $tags);
 			if(isset($tags[1])) {
 				foreach($tags[1] as $key => &$value) {
 					$temp_tags[$key+$tag_count] = $value;
@@ -91,14 +109,14 @@ class router {
 						continue;
 					}
 					
-					if(@preg_match("@".$match[0]."@", "") === false) {
+					if(@preg_match("%".$match[0]."%", "") === false) {
 						$this->failMatch("The REGEX is invalid",$match);
 						continue;
 					}
-					
+					//If the tag exists add it in to the matches
 					if(isset($this->tags[(string)$match['name']])) {
 						$position = $this->tags[(string) $match['name']];
-						$this->compiled_routes[(string)$route['id']]['matches'][$position] = array( "tag" => (string)$match['name'], "regex" => (string)$match[0]);
+						$this->compiled_routes[(string)$route['id']]['matches'][$position] = 
 						$this->matches[$position] = array( "tag" => (string)$match['name'], "regex" => (string)$match[0]);
 					}	
 					
@@ -110,20 +128,20 @@ class router {
 			$this->compiled_routes[(string)$route['id']]['matches'] = array_values($this->compiled_routes[(string)$route['id']]['matches']);
 			$this->matches = array_values($this->matches);
 			
+			
 			//Save current patterns/matches here so after child recursion it has a copy before it was modified by the child
 			$current_pattern = $this->current_pattern;
 			$current_match = $this->matches;			
-			$this->compiled_routes[(string)$route['id']]['regex'] = $this->createRegularExpression($current_pattern,$this->matches);
-			
+			$this->compiled_routes[(string)$route['id']]['regex'] = $this->createRegularExpression($this->compiled_routes[(string)$route['id']]['pattern'],$this->matches);
+	
 			//Recurse children
 			foreach($route->route as $childRoute) {
 				
 				if($childRoute->getName() == "route") {
 					$this->buildRoutes($childRoute);
-				
 				}
 
-				//Reset tags/patterns/matches back to saved values so that inheritance doesnt break children on the same level
+				//Reset tags/patterns/matches back to saved values so that inheritance doesnt break peers on the same level
 				$this->tags = $current_tags;
 				$this->matches = $current_match; 
 				$this->current_pattern = $current_pattern;
@@ -155,22 +173,25 @@ class router {
 	}
 	
 	private function createRegularExpression($pattern,$matches) {
-		$pattern = implode(null, $pattern);
 		foreach($matches as $matchArray) {
-			$pattern = preg_replace('@{'.$matchArray['tag'].'}@',"(".$matchArray['regex'].")", $pattern);
+			$pattern = preg_replace('%{'.$matchArray['tag'].'}%',"(".$matchArray['regex'].")", $pattern);
 		}
 		return $pattern;
 	}
 	
 	public function route($url) {	
 		foreach($this->compiled_routes as $id => $route) {
-			if(preg_match('@^'.$route['regex'].'$@', $url, $matches)) {
+			if(preg_match('%^'.$route['regex'].'$%', $url, $matches)) {
 				array_shift($matches);
 				foreach($matches as $k => $v) {
 					$matches[$route['matches'][$k]['tag']] = $v;
 					unset($matches[$k]);
 				}
-				return array($id,$matches);
+				return array("route-id" => $id,
+							"pattern" => $route['pattern'], 
+							"controller" => $route['controller'],
+							"method" => $route['method'],
+							"matches" => $matches);
 			}
 			
 		}

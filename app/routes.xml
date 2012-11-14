@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <route id="index" pattern="" controller="app/index" method="test">
 	
-	<route id="admin" pattern="admin/{lang1}/{lang2}/" controller="app/admin" method="index">
+	<route id="admin" pattern="admin/{lang1}/{lang2}" controller="app/admin" method="index">
 	
 		<match name="lang1">en</match>
 		
@@ -28,5 +28,7 @@
 	</route>
 	
 	<route id="trumps" pattern="user/{lang}/" controller="app/admin" method="index" />
+	
+	<route id="trumps2" pattern="user/" controller="app/admin" method="index" />	
 		
 </route>
